@@ -3,18 +3,35 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    public enum Front
+    {
+        Left,
+        Center,
+        Right,
+    }
+
     static public GameManager Instance = null;
-    public GameObject bullet = null;
+    public GameObject bulletFrontLeft = null;
+    public GameObject bulletFrontCenter = null;
+    public GameObject bulletFrontRight = null;
+    public GameObject cameraPositionLeft = null;
+    public GameObject cameraPositionCenter = null;
+    public GameObject cameraPositionRight = null;
+    public Base CurrentBase { get; set; }
+    public CameraManager cameraManager = null;
+    public GameObject Bullet { get; set; }
+    public bool onTransition = false;
     public int Points { get; set; }
     public int PointsForEnemy = 1;
     public int Hits = 0;
-    public int SumHitToGiveLife = 10;
+    public int SumPointsToGiveLife = 10;
     public float coolDownHit = 2f;
     public float enemyVelocity = 1.4f;
     public int enemyDamage = 1;
     public float delayEnemy = 1f;
     public int fastIdentifier = 10;
     protected float lastHit = 0f;
+    protected Front current = Front.Center;
 
     void Awake()
     {
@@ -26,7 +43,15 @@ public class GameManager : MonoBehaviour
         else
         {
             GameObject.DestroyImmediate(this.gameObject);
+            return;
         }
+    }
+
+    void Start()
+    {
+        cameraManager.GoTo(cameraPositionCenter.transform, this.FinishTransition);
+        this.Bullet = this.bulletFrontCenter;
+        this.current = Front.Center;
     }
 
     void Update()
@@ -87,15 +112,20 @@ public class GameManager : MonoBehaviour
             GUIManager.Instance.ShowPontuation(this.Points);
         }
 
-        if (this.Hits == SumHitToGiveLife)
+        if (this.Points % this.SumPointsToGiveLife == 0)
         {
-            Base.Instance.life += SumHitToGiveLife / 3;
+            this.CurrentBase.life += 1;
         }
     }
 
     public void Finish()
     {
         Application.LoadLevel("GameOver");
+    }
+
+    protected void FinishTransition()
+    {
+        onTransition = false;
     }
 
     public void Reset()
@@ -117,5 +147,49 @@ public class GameManager : MonoBehaviour
     public void DisableBouncyBullet()
     {
         GUIManager.Instance.BouncyBulletHitControl(false, "");
+    }
+
+    public void ChangeTo(Front front)
+    {
+        if (onTransition)
+        {
+            return;
+        }
+
+        Transform aux = null;
+        GameObject bullet = null;
+        Front auxFront = Front.Center;
+        if (this.current == Front.Center && front == Front.Left)
+        {
+            aux = this.cameraPositionLeft.transform;
+            bullet = this.bulletFrontLeft;
+            auxFront = Front.Left;
+        }
+        else if (this.current == Front.Center && front == Front.Right)
+        {
+            aux = this.cameraPositionRight.transform;
+            bullet = this.bulletFrontRight;
+            auxFront = Front.Right;
+        }
+        else if (this.current == Front.Left && front == Front.Right)
+        {
+            aux = this.cameraPositionCenter.transform;
+            bullet = this.bulletFrontCenter;
+            auxFront = Front.Center;
+        }
+        else if (this.current == Front.Right && front == Front.Left)
+        {
+            aux = this.cameraPositionCenter.transform;
+            bullet = this.bulletFrontCenter;
+            auxFront = Front.Center;
+        }
+        else
+        {
+            return;
+        }
+        this.current = auxFront;
+        this.Bullet = bullet;
+        this.cameraManager.GoTo(aux, this.FinishTransition);
+        onTransition = true;
     }
 }

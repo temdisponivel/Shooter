@@ -6,6 +6,6 @@ public class PlayAgainButton : MonoBehaviour
     public void Click()
     {
         GameManager.Instance.Reset();
-        Application.LoadLevel("ShootChooser");
+        Application.LoadLevel("GamePlay");
     }
 }

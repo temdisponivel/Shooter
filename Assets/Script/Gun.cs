@@ -5,7 +5,6 @@ using Assets.Script.Contract;
 public class Gun : MonoBehaviour, IInputListener
 {
     static public Gun Instance = null;
-    public GameObject bullet = null;
     public Camera camera = null;
     public float forceMultiplier = .1f;
     public float forceDividendMobile = .1f;
@@ -32,7 +31,6 @@ public class Gun : MonoBehaviour, IInputListener
             return;
         }
         InputManager.Instance.Listener = this;
-        this.bullet = GameManager.Instance.bullet;
     }
 
 #if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_WEBGL || UNITY_EDITOR
@@ -58,11 +56,26 @@ public class Gun : MonoBehaviour, IInputListener
 
     public void ChangeAngle(float angle)
     {
+        Debug.Log(this.sumAngles);
         float multiplier = angle * rotationMultiplier;
-        if (Mathf.Abs(this.sumAngles + multiplier) <= 50f)
+        if (Mathf.Abs(this.sumAngles + multiplier) <= 85f)
         {
             this.sumAngles += multiplier;
             this.transform.Rotate(Vector3.forward, multiplier, Space.Self);
+        }
+        else if (this.sumAngles < -80)
+        {
+            GameManager.Instance.ChangeTo(GameManager.Front.Right);
+            this.transform.Rotate(Vector3.forward , - this.sumAngles, Space.Self);
+            this.sumAngles = 0;
+            return;
+        }
+        else if (this.sumAngles > 80)
+        {
+            GameManager.Instance.ChangeTo(GameManager.Front.Left);
+            this.transform.Rotate(Vector3.forward, -this.sumAngles, Space.Self);
+            this.sumAngles = 0;
+            return;
         }
     }
 #endif
@@ -86,13 +99,26 @@ public class Gun : MonoBehaviour, IInputListener
 
     public void ChangeMove(Vector2 position)
     {
-        float angle = Mathf.Atan(position.x - startPosition.x) * Mathf.Rad2Deg;
-        Debug.Log(-angle * Time.deltaTime * this.rotationMultiplierMobile);
+        float angle = Mathf.Atan((position.y - startPosition.y) / (position.x - startPosition.x)) * Mathf.Rad2Deg;
         float multiplier = -angle * Time.deltaTime * this.rotationMultiplierMobile;
         if (Mathf.Abs(this.sumAngles + multiplier) <= 50f)
         {
             this.sumAngles += multiplier;
             this.transform.Rotate(Vector3.forward, multiplier, Space.Self);
+        }
+        else if (this.sumAngles < -35)
+        {
+            GameManager.Instance.ChangeTo(GameManager.Front.Right);
+            this.transform.Rotate(Vector3.forward , - this.sumAngles, Space.Self);
+            this.sumAngles = 0;
+            return;
+        }
+        else if (this.sumAngles > 35)
+        {
+            GameManager.Instance.ChangeTo(GameManager.Front.Left);
+            this.transform.Rotate(Vector3.forward, -this.sumAngles, Space.Self);
+            this.sumAngles = 0;
+            return;
         }
     }
 #endif
@@ -101,9 +127,10 @@ public class Gun : MonoBehaviour, IInputListener
     {
         if (this.shootsActive < this.maxShoot)
         {
-            if (this.bullet != null)
+            if (GameManager.Instance.Bullet != null)
             {
-                ((GameObject)GameObject.Instantiate(bullet, this.transform.position, this.transform.rotation)).GetComponent<Bullet>().velocity = force;
+                Debug.Log("SHOOT");
+                ((GameObject)GameObject.Instantiate(GameManager.Instance.Bullet, this.transform.position, this.transform.rotation)).GetComponent<Bullet>().velocity = force;
                 this.shootsActive++;
             }
             force = 0;
