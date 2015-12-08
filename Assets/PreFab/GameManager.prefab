@@ -40,16 +40,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8196bcc1986ad2b4cbc0d37d38096cb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletFrontOne: {fileID: 140490, guid: 2690d20005282434289ba33866353b1b, type: 2}
-  bulletFrontTwo: {fileID: 183962, guid: 3a2963c075ee73643973ba5cbf1e9b55, type: 2}
-  bulletFrontThree: {fileID: 121786, guid: 04c82fb1723a6a24ab5072ee048b2c8d, type: 2}
-  cameraPositionLeft: {fileID: 0}
-  cameraPositionCenter: {fileID: 0}
-  cameraPositionRight: {fileID: 0}
-  cameraManager: {fileID: 0}
   PointsForEnemy: 5
   Hits: 0
-  SumPointsToGiveLife: 10
+  SumHitToGiveLife: 10
   coolDownHit: 1.79999995
   enemyVelocity: 1.39999998
   enemyDamage: 1

@@ -3,11 +3,21 @@ using System.Collections;
 
 public class Base : MonoBehaviour
 {
+    static public Base Instance = null;
     public int life = 10;
     protected SpriteRenderer spriteRenderer = null;
 
     void Start()
     {
+        if (Base.Instance == null)
+        {
+            Base.Instance = this;
+        }
+        else
+        {
+            GameObject.DestroyImmediate(this.gameObject);
+            return;
+        }
         this.spriteRenderer = this.GetComponent<SpriteRenderer>();
     }
 
